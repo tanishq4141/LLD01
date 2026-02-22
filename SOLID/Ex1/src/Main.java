@@ -6,6 +6,8 @@ public class Main {
 
         String raw = "name=Riya;email=riya@sst.edu;phone=9876543210;program=CSE";
         svc.registerFromRawInput(raw);
+        String raw2 = "name=Tanishq;email=tanishq@sst.edu;phone=8686252542;program=AI";
+        svc.registerFromRawInput(raw2);
 
         System.out.println();
         System.out.println("-- DB DUMP --");

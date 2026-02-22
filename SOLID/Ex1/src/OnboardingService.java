@@ -1,9 +1,11 @@
 import java.util.*;
 
 public class OnboardingService {
-    private final FakeDb db;
+   private final StudentRepository db;
 
-    public OnboardingService(FakeDb db) { this.db = db; }
+    public OnboardingService(StudentRepository db) {
+        this.db = db;
+    }
 
     // Intentionally violates SRP: parses + validates + creates ID + saves + prints.
     public void registerFromRawInput(String raw) {
@@ -13,20 +15,18 @@ public class OnboardingService {
        
 
         // validation inline, printing inline
-        List<String> errors = new ArrayList<>();
-        if (name.isBlank()) errors.add("name is required");
-        if (email.isBlank() || !email.contains("@")) errors.add("email is invalid");
-        if (phone.isBlank() || !phone.chars().allMatch(Character::isDigit)) errors.add("phone is invalid");
-        if (!(program.equals("CSE") || program.equals("AI") || program.equals("SWE"))) errors.add("program is invalid");
+        StudentValidator validator = new StudentValidator();
+        List<String> errors = validator.validate(request);
 
         if (!errors.isEmpty()) {
             System.out.println("ERROR: cannot register");
-            for (String e : errors) System.out.println("- " + e);
+            for (String e : errors)
+                System.out.println("- " + e);
             return;
         }
 
         String id = IdUtil.nextStudentId(db.count());
-        StudentRecord rec = new StudentRecord(id, name, email, phone, program);
+        StudentRecord rec = new StudentRecord(id, request.name, request.email, request.phone, request.program);
 
         db.save(rec);
 
