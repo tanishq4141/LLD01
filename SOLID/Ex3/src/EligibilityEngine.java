@@ -2,12 +2,28 @@ import java.util.*;
 
 public class EligibilityEngine {
     private final FakeEligibilityStore store;
+    private final List<EligibilityRule> rules;
 
-    public EligibilityEngine(FakeEligibilityStore store) { this.store = store; }
+    public EligibilityEngine(FakeEligibilityStore store) {
+        this.store = store;
+        this.rules = createRules();
+    }
+
+    private List<EligibilityRule> createRules() {
+        RuleInput config = new RuleInput();
+        List<EligibilityRule> ruleList = new ArrayList<>();
+
+        ruleList.add(new DisciplinaryFlagRule());
+        ruleList.add(new CgrRule(config.minCgr));
+        ruleList.add(new AttendanceRule(config.minAttendance));
+        ruleList.add(new CreditsRule(config.minCredits));
+
+        return ruleList;
+    }
 
     public void runAndPrint(StudentProfile s) {
         ReportPrinter p = new ReportPrinter();
-        EligibilityEngineResult r = evaluate(s); // giant conditional inside
+        EligibilityEngineResult r = evaluate(s);
         p.print(s, r);
         store.save(s.rollNo, r.status);
     }
@@ -16,19 +32,12 @@ public class EligibilityEngine {
         List<String> reasons = new ArrayList<>();
         String status = "ELIGIBLE";
 
-        // OCP violation: long chain for each rule
-        if (s.disciplinaryFlag != LegacyFlags.NONE) {
-            status = "NOT_ELIGIBLE";
-            reasons.add("disciplinary flag present");
-        } else if (s.cgr < 8.0) {
-            status = "NOT_ELIGIBLE";
-            reasons.add("CGR below 8.0");
-        } else if (s.attendancePct < 75) {
-            status = "NOT_ELIGIBLE";
-            reasons.add("attendance below 75");
-        } else if (s.earnedCredits < 20) {
-            status = "NOT_ELIGIBLE";
-            reasons.add("credits below 20");
+        for (EligibilityRule rule : rules) {
+            String violation = rule.checkViolation(s);
+            if (violation != null) {
+                status = "NOT_ELIGIBLE";
+                reasons.add(violation);
+                break;            }
         }
 
         return new EligibilityEngineResult(status, reasons);
@@ -38,6 +47,7 @@ public class EligibilityEngine {
 class EligibilityEngineResult {
     public final String status;
     public final List<String> reasons;
+
     public EligibilityEngineResult(String status, List<String> reasons) {
         this.status = status;
         this.reasons = reasons;
