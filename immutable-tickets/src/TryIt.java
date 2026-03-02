@@ -16,19 +16,40 @@ public class TryIt {
     public static void main(String[] args) {
         TicketService service = new TicketService();
 
-        IncidentTicket t = service.createTicket("TCK-1001", "reporter@example.com", "Payment failing on checkout");
-        System.out.println("Created: " + t);
+        // 1. Create ticket using Builder (through service)
+        IncidentTicket original = service.createTicket(
+                "TCK-1001", "reporter@example.com", "Payment failing on checkout");
+        System.out.println("Created : " + original);
 
-        // Demonstrate post-creation mutation through service
-        service.assign(t, "agent@example.com");
-        service.escalateToCritical(t);
-        System.out.println("\nAfter service mutations: " + t);
+        // 2. "Update" by assigning — returns a NEW instance
+        IncidentTicket assigned = service.assign(original, "agent@example.com");
+        System.out.println("\nAssigned (new)   : " + assigned);
+        System.out.println("Original (same)  : " + original);
 
-        // Demonstrate external mutation via leaked list reference
-        List<String> tags = t.getTags();
-        tags.add("HACKED_FROM_OUTSIDE");
-        System.out.println("\nAfter external tag mutation: " + t);
+        // 3. Escalate — returns yet another NEW instance
+        IncidentTicket escalated = service.escalateToCritical(assigned);
+        System.out.println("\nEscalated (new)  : " + escalated);
+        System.out.println("Assigned  (same) : " + assigned);
 
-        // Starter compiles; after refactor, you should redesign updates to create new objects instead.
+        // 4. Try to mutate tags from outside — should be blocked
+        List<String> tags = escalated.getTags();
+        try {
+            tags.add("HACKED_FROM_OUTSIDE");
+            System.out.println("\n*** BUG: external mutation succeeded ***");
+        } catch (UnsupportedOperationException e) {
+            System.out.println("\nExternal tag mutation blocked (immutable list).");
+        }
+
+        // 5. Build a ticket directly with the Builder
+        IncidentTicket custom = new IncidentTicket.Builder("INC-42", "user@corp.io", "Dashboard slow")
+                .description("Loads in 12 s instead of 2 s")
+                .priority("HIGH")
+                .slaMinutes(60)
+                .source("WEBHOOK")
+                .customerVisible(true)
+                .addTag("PERFORMANCE")
+                .addTag("FRONTEND")
+                .build();
+        System.out.println("\nCustom ticket    : " + custom);
     }
 }

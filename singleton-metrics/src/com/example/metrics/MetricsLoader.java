@@ -15,24 +15,23 @@ import java.util.Properties;
  */
 public class MetricsLoader {
 
-    public MetricsRegistry loadFromFile(String path) throws IOException {
-        Properties props = new Properties();
-        try (FileInputStream fis = new FileInputStream(path)) {
-            props.load(fis);
+    public MetricsRegistry loadFromFile(String propertiesPath) throws IOException {
+        Properties metricsProps = new Properties();
+        try (FileInputStream fileStream = new FileInputStream(propertiesPath)) {
+            metricsProps.load(fileStream);
         }
 
-        // BROKEN: should not create a new instance
-        MetricsRegistry registry = new MetricsRegistry();
+        MetricsRegistry registry = MetricsRegistry.getInstance();
 
-        for (String key : props.stringPropertyNames()) {
-            String raw = props.getProperty(key, "0").trim();
-            long v;
+        for (String counterName : metricsProps.stringPropertyNames()) {
+            String rawValue = metricsProps.getProperty(counterName, "0").trim();
+            long initialCount;
             try {
-                v = Long.parseLong(raw);
-            } catch (NumberFormatException e) {
-                v = 0L;
+                initialCount = Long.parseLong(rawValue);
+            } catch (NumberFormatException parseError) {
+                initialCount = 0L;
             }
-            registry.setCount(key, v);
+            registry.setCount(counterName, initialCount);
         }
         return registry;
     }

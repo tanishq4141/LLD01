@@ -1,0 +1,6 @@
+// only implements power + temperature (doesn't need brightness/scan/input)
+public class AirConditioner implements Switchable, TemperatureControllable {
+    @Override public void powerOn() { /* ok */ }
+    @Override public void powerOff() { System.out.println("AC OFF"); }
+    @Override public void setTemperatureC(int c) { System.out.println("AC set to " + c + "C"); }
+}

@@ -25,37 +25,47 @@ public class MetricsRegistry implements Serializable {
     @Serial
     private static final long serialVersionUID = 1L;
 
-    private static MetricsRegistry INSTANCE; // BROKEN: not volatile, not thread-safe
+    private static volatile boolean instanceAlreadyCreated = false;
     private final Map<String, Long> counters = new HashMap<>();
 
-    // BROKEN: should be private and should prevent second construction
-    public MetricsRegistry() {
-        // intentionally empty
-    }
-
-    // BROKEN: racy lazy init; two threads can create two instances
-    public static MetricsRegistry getInstance() {
-        if (INSTANCE == null) {
-            INSTANCE = new MetricsRegistry();
+    private MetricsRegistry() {
+        if (instanceAlreadyCreated) {
+            throw new IllegalStateException(
+                    "MetricsRegistry singleton violated: "
+                            + "reflective constructor call blocked. "
+                            + "Use MetricsRegistry.getInstance() instead.");
         }
-        return INSTANCE;
+        instanceAlreadyCreated = true;
     }
 
-    public synchronized void setCount(String key, long value) {
-        counters.put(key, value);
+    private static final class RegistryHolder {
+        private static final MetricsRegistry INSTANCE = new MetricsRegistry();
     }
 
-    public synchronized void increment(String key) {
-        counters.put(key, getCount(key) + 1);
+    public static MetricsRegistry getInstance() {
+        return RegistryHolder.INSTANCE;
     }
 
-    public synchronized long getCount(String key) {
-        return counters.getOrDefault(key, 0L);
+    @Serial
+    private Object readResolve() {
+        return getInstance();
+    }
+
+    /* ── Counter operations (synchronized for thread-safe mutation) ── */
+
+    public synchronized void setCount(String metricKey, long value) {
+        counters.put(metricKey, value);
+    }
+
+    public synchronized void increment(String metricKey) {
+        counters.put(metricKey, getCount(metricKey) + 1);
+    }
+
+    public synchronized long getCount(String metricKey) {
+        return counters.getOrDefault(metricKey, 0L);
     }
 
     public synchronized Map<String, Long> getAll() {
         return Collections.unmodifiableMap(new HashMap<>(counters));
     }
-
-    // TODO: implement readResolve() to preserve singleton on deserialization
 }
