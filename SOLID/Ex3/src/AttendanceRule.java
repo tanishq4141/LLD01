@@ -6,11 +6,10 @@ public class AttendanceRule implements EligibilityRule {
     }
 
     @Override
-    public String checkViolation(StudentProfile student) {
+    public Violation checkViolation(StudentProfile student) {
         if (student.attendancePct < minAttendance) {
-            return "attendance below " + minAttendance;
+            return new Violation("ATTENDANCE", String.valueOf(minAttendance));
         }
         return null;
     }
 }
-

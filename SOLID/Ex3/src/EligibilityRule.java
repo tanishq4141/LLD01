@@ -1,4 +1,4 @@
 public interface EligibilityRule {
-    
-    String checkViolation(StudentProfile student);
+
+    Violation checkViolation(StudentProfile student);
 }

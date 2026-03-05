@@ -4,9 +4,18 @@ public class ReportPrinter {
                 + ", attendance=" + s.attendancePct + ", credits=" + s.earnedCredits
                 + ", flag=" + LegacyFlags.nameOf(s.disciplinaryFlag) + ")");
         System.out.println("RESULT: " + r.status);
-        for (String reason : r.reasons) System.out.println("- " + reason);
-        if (r.reasons.isEmpty() && "ELIGIBLE".equals(r.status)) {
-            // keep behavior stable even if empty
+        for (Violation v : r.violations) {
+            System.out.println("- " + formatViolation(v));
         }
+    }
+
+    private String formatViolation(Violation v) {
+        return switch (v.ruleName) {
+            case "ATTENDANCE" -> "attendance below " + v.detail;
+            case "CGR" -> "CGR below " + v.detail;
+            case "CREDITS" -> "credits below " + v.detail;
+            case "DISCIPLINARY_FLAG" -> "disciplinary flag: " + v.detail;
+            default -> v.ruleName + ": " + v.detail;
+        };
     }
 }

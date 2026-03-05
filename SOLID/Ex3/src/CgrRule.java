@@ -6,9 +6,9 @@ public class CgrRule implements EligibilityRule {
     }
 
     @Override
-    public String checkViolation(StudentProfile student) {
+    public Violation checkViolation(StudentProfile student) {
         if (student.cgr < minCgr) {
-            return "CGR below " + minCgr;
+            return new Violation("CGR", String.valueOf(minCgr));
         }
         return null;
     }

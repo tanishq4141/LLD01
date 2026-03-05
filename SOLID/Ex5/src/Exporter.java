@@ -1,29 +1,15 @@
+// base class for all exporters
+// contract: accept any non-null request, return ExportResult (never throw)
 public abstract class Exporter {
-    /**
-     * Checks if this exporter can handle the given request.
-     * 
-     * @param req the request to check
-     * @return true if the request can be exported, false otherwise
-     */
-    public boolean canExport(ExportRequest req) {
-        return req != null;
+
+    // handles null check here so subclasses don't have to
+    public ExportResult export(ExportRequest req) {
+        if (req == null) {
+            return ExportResult.error("request is null");
+        }
+        return doExport(req);
     }
 
-    /**
-     * Exports the request to a specific format.
-     * 
-     * Preconditions:
-     * - req must not be null.
-     * - canExport(req) must return true.
-     * 
-     * Postconditions:
-     * - Returns a non-null ExportResult.
-     * - Does not throw exceptions if preconditions are met.
-     * - Accurately represents the request data according to the format.
-     * 
-     * @param req the export request
-     * @return the export result
-     * @throws IllegalArgumentException if preconditions are not met
-     */
-    public abstract ExportResult export(ExportRequest req);
+    // subclasses do their format-specific work here
+    protected abstract ExportResult doExport(ExportRequest req);
 }

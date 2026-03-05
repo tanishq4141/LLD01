@@ -6,9 +6,9 @@ public class CreditsRule implements EligibilityRule {
     }
 
     @Override
-    public String checkViolation(StudentProfile student) {
+    public Violation checkViolation(StudentProfile student) {
         if (student.earnedCredits < minCredits) {
-            return "credits below " + minCredits;
+            return new Violation("CREDITS", String.valueOf(minCredits));
         }
         return null;
     }

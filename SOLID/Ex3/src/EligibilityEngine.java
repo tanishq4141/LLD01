@@ -1,11 +1,9 @@
 import java.util.*;
 
 public class EligibilityEngine {
-    private final FakeEligibilityStore store;
     private final List<EligibilityRule> rules;
 
-    public EligibilityEngine(FakeEligibilityStore store) {
-        this.store = store;
+    public EligibilityEngine() {
         this.rules = createRules();
     }
 
@@ -21,35 +19,29 @@ public class EligibilityEngine {
         return ruleList;
     }
 
-    public void runAndPrint(StudentProfile s) {
-        ReportPrinter p = new ReportPrinter();
-        EligibilityEngineResult r = evaluate(s);
-        p.print(s, r);
-        store.save(s.rollNo, r.status);
-    }
-
     public EligibilityEngineResult evaluate(StudentProfile s) {
-        List<String> reasons = new ArrayList<>();
+        List<Violation> violations = new ArrayList<>();
         String status = "ELIGIBLE";
 
         for (EligibilityRule rule : rules) {
-            String violation = rule.checkViolation(s);
+            Violation violation = rule.checkViolation(s);
             if (violation != null) {
                 status = "NOT_ELIGIBLE";
-                reasons.add(violation);
-                break;            }
+                violations.add(violation);
+                break;
+            }
         }
 
-        return new EligibilityEngineResult(status, reasons);
+        return new EligibilityEngineResult(status, violations);
     }
 }
 
 class EligibilityEngineResult {
     public final String status;
-    public final List<String> reasons;
+    public final List<Violation> violations;
 
-    public EligibilityEngineResult(String status, List<String> reasons) {
+    public EligibilityEngineResult(String status, List<Violation> violations) {
         this.status = status;
-        this.reasons = reasons;
+        this.violations = violations;
     }
 }
