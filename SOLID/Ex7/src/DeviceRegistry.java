@@ -6,7 +6,7 @@ public class DeviceRegistry {
 
     public void add(SmartClassroomDevice d) { devices.add(d); }
 
-    // first device matching the given capability
+    
     @SuppressWarnings("unchecked")
     public <T> T getFirst(Class<T> capability) {
         for (SmartClassroomDevice d : devices) {
@@ -15,13 +15,5 @@ public class DeviceRegistry {
         throw new IllegalStateException("No device supports: " + capability.getSimpleName());
     }
 
-    // all devices matching the given capability
-    @SuppressWarnings("unchecked")
-    public <T> List<T> getAll(Class<T> capability) {
-        List<T> result = new ArrayList<>();
-        for (SmartClassroomDevice d : devices) {
-            if (capability.isInstance(d)) result.add((T) d);
-        }
-        return result;
-    }
+    
 }

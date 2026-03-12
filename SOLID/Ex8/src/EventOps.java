@@ -4,3 +4,5 @@ public interface EventOps extends ClubAdminTools {
     int getEventsCount();
 }
 
+// new
+

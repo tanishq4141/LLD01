@@ -1,7 +1,9 @@
 public class ClassroomController {
     private final DeviceRegistry reg;
 
-    public ClassroomController(DeviceRegistry reg) { this.reg = reg; }
+    public ClassroomController(DeviceRegistry reg) {
+        this.reg = reg;
+    }
 
     public void startClass() {
         // projector supports both Switchable and InputConnectable
@@ -18,9 +20,5 @@ public class ClassroomController {
 
     public void endClass() {
         System.out.println("Shutdown sequence:");
-        // power off everything that can be switched off
-        for (Switchable s : reg.getAll(Switchable.class)) {
-            s.powerOff();
-        }
     }
 }
