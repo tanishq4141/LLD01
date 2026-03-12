@@ -6,6 +6,11 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
+
+//clone
+//seraltaion
+//Using Java Reflection API, someone can access the private constructor and create another instance.
+
 /**
  * INTENTION: Global metrics registry (should be a Singleton).
  *
@@ -25,9 +30,13 @@ public class MetricsRegistry implements Serializable {
     @Serial
     private static final long serialVersionUID = 1L;
 
+
+    //private static MetricsRegistry INSTANCE;
     private static volatile boolean instanceAlreadyCreated = false;
     private final Map<String, Long> counters = new HashMap<>();
 
+
+    //public
     private MetricsRegistry() {
         if (instanceAlreadyCreated) {
             throw new IllegalStateException(
